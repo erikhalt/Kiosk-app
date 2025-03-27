@@ -1,0 +1,127 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const app = document.getElementById("app");
+    let cart = [];
+
+    const menuData = {
+        "Drinks": [
+            { "name": "Arnold Palmer", "price": 4 },
+            { "name": "Clubhouse Coffee", "price": 3 }
+        ],
+        "Snacks": [
+            { "name": "Golf Ball Popcorn", "price": 5 },
+            { "name": "Hole-in-One Nachos", "price": 7 }
+        ],
+        "Food": [
+            { "name": "Caddy's Burger", "price": 10 },
+            { "name": "Fairway Chicken Wrap", "price": 9 }
+        ]
+    };
+
+    function renderHome() {
+        app.innerHTML = `
+            <h1>Golf Club Menu</h1>
+            <div id="category-container"></div>
+            <button id="view-cart">View Cart (<span id='cart-count'>0</span>)</button>
+        `;
+
+        const categoryContainer = document.getElementById("category-container");
+
+        for (const category in menuData) {
+            const categoryDiv = document.createElement("div");
+            categoryDiv.className = "category-box";
+            categoryDiv.textContent = category;
+            categoryDiv.style.backgroundImage = `url('images/${category.toLowerCase()}.jpg')`;
+            categoryDiv.addEventListener("click", () => renderCategory(category));
+
+            categoryContainer.appendChild(categoryDiv);
+        }
+
+        // Update cart count when returning to home
+        updateCartCount();
+
+        document.getElementById("view-cart").addEventListener("click", renderCart);
+    }
+
+    function renderCategory(category) {
+        app.innerHTML = `
+            <button id="back-button">
+                <box-icon name='left-arrow-circle' type='solid'></box-icon>
+            </button>
+            <h1>${category}</h1>
+            <div class="menu-items"></div>
+        `;
+
+        const menuContainer = document.querySelector(".menu-items");
+
+        menuData[category].forEach(item => {
+            const itemDiv = document.createElement("div");
+            itemDiv.className = "menu-item";
+            itemDiv.innerHTML = `
+                <span>${item.name} - $${item.price}</span>
+                <box-icon name='plus-circle' data-name="${item.name}" data-price="${item.price}" class="add-to-cart"></box-icon>
+            `;
+
+            menuContainer.appendChild(itemDiv);
+        });
+
+        document.getElementById("back-button").addEventListener("click", renderHome);
+
+        document.querySelectorAll("[name='plus-circle']").forEach(icon => {
+            icon.addEventListener("click", (e) => {
+                const name = e.currentTarget.getAttribute("data-name");
+                const price = parseFloat(e.currentTarget.getAttribute("data-price"));
+                addToCart(name, price);
+            });
+        });
+    }
+
+    function addToCart(name, price) {
+        console.log("Adding to cart:", name);
+        const existingItem = cart.find(item => item.name === name);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({ name, price, quantity: 1 });
+        }
+
+        updateCartCount();
+    }
+
+    function updateCartCount() {
+        console.log("Updating cart count");
+        const cartCount = document.getElementById("cart-count");
+        if (cartCount) {
+            // Sum up total quantity of all items
+            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+    }
+
+    function renderCart() {
+        app.innerHTML = `
+            <button id="back-button">
+                <box-icon name='left-arrow-circle' type='solid'></box-icon>
+            </button>
+            <h1>Shopping Cart</h1>
+            <div class="cart-items"></div>
+            <button id="checkout">Checkout</button>
+        `;
+
+        const cartContainer = document.querySelector(".cart-items");
+        if (cart.length === 0) {
+            cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+        } else {
+            cart.forEach(item => {
+                const cartItem = document.createElement("div");
+                cartItem.className = "cart-item";
+                cartItem.innerHTML = `
+                    ${item.name} - $${item.price} x ${item.quantity}
+                `;
+                cartContainer.appendChild(cartItem);
+            });
+        }
+
+        document.getElementById("back-button").addEventListener("click", renderHome);
+    }
+
+    renderHome();
+});
