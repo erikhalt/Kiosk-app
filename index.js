@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         app.innerHTML = `
             <h1>Golf Club Menu</h1>
             <div id="category-container"></div>
-            <button id="view-cart">View Cart (<span id='cart-count'>0</span>)</button>
+            <button id="view-cart">View Cart (0)</button>
         `;
 
         const categoryContainer = document.getElementById("category-container");
@@ -39,7 +39,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update cart count when returning to home
         updateCartCount();
 
-        document.getElementById("view-cart").addEventListener("click", renderCart);
+        // var viewCartButton = document.getElementById("view-cart");
+        // console.log(viewCartButton);
+        // viewCartButton.addEventListener('click',function() {
+        //     console.log('test');
+        // });
+        document.addEventListener("click", function(event) {
+            if (event.target && event.target.id === "view-cart") {
+                console.log("test");
+                renderCart();
+            }
+        });
     }
 
     function renderCategory(category) {
@@ -89,11 +99,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateCartCount() {
         console.log("Updating cart count");
-        const cartCount = document.getElementById("cart-count");
-        if (cartCount) {
-            // Sum up total quantity of all items
-            cartCount.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        var cartView = document.getElementById("view-cart");
+        var quantitySum = 0;
+        for (var i = 0 ; i<cart.length ; i++) {
+            quantitySum += cart[i]['quantity'];
         }
+        cartView.innerHTML = `View Cart (${quantitySum})`;
     }
 
     function renderCart() {
