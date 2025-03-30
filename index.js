@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.getElementById("checkout").addEventListener("click", () => {
-            const swishURL = generateSwishURL(totalAmount, cartContainer.innerHTML);
+            const swishURL = generateSwishURL(totalAmount, "TEST");
             window.location.href = swishURL;
         });
 
