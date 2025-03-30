@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.getElementById("checkout").addEventListener("click", () => {
-            const swishURL = generateSwishURL(totalAmount, "TESTTEST");
+            const swishURL = generateSwishURL(totalAmount, cartContainer.innerHTML);
             window.location.href = swishURL;
         });
 
@@ -195,8 +195,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function generateSwishURL(amount, message) {
         const swishNumber = "1234567890"; // Replace with your Swish merchant number
-        return `swish://payment?amount=${amount}&message=${encodeURIComponent(message)}&payee=${swishNumber}`;
+        return `swish://payment?amount=${encodeURIComponent(amount)}&message=${encodeURIComponent(message)}&payee=${encodeURIComponent(swishNumber)}`;
     }
+
 
     renderHome();
 });
