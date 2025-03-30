@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // viewCartButton.addEventListener('click',function() {
         //     console.log('test');
         // });
-        document.addEventListener("click", function(event) {
+        document.addEventListener("click", function (event) {
             if (event.target && event.target.id === "view-cart") {
                 console.log("test");
                 renderCart();
@@ -62,15 +62,31 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
         const menuContainer = document.querySelector(".menu-items");
-
+        console.log(cart);
         menuData[category].forEach(item => {
             const itemDiv = document.createElement("div");
             itemDiv.className = "menu-item";
-            itemDiv.innerHTML = `
+            var match = false;
+            cart.forEach(cartItem => {
+                if (cartItem.name == item.name) {
+                    itemDiv.innerHTML = `
                 <span>${item.name} - $${item.price}</span>
+                <box-icon name='minus-circle' data-name="${item.name}" data-price="${item.price}" class="add-to-cart"></box-icon>
+                <span id="${item.name}span">${cartItem.quantity}</span>
                 <box-icon name='plus-circle' data-name="${item.name}" data-price="${item.price}" class="add-to-cart"></box-icon>
-            `;
+                `;
+                    match = true;
+                }
+            })
+            if (!match) {
 
+                itemDiv.innerHTML = `
+                <span>${item.name} - $${item.price}</span>
+                <box-icon name='minus-circle' data-name="${item.name}" data-price="${item.price}" class="add-to-cart"></box-icon>
+                <span id="${item.name}span">0</span>
+                <box-icon name='plus-circle' data-name="${item.name}" data-price="${item.price}" class="add-to-cart"></box-icon>
+                `;
+            }
             menuContainer.appendChild(itemDiv);
         });
 
@@ -83,6 +99,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 addToCart(name, price);
             });
         });
+
+        document.querySelectorAll("[name='minus-circle']").forEach(icon => {
+            icon.addEventListener("click", (e) => {
+                const name = e.currentTarget.getAttribute("data-name");
+                const price = parseFloat(e.currentTarget.getAttribute("data-price"));
+                removefromCart(name);
+            });
+        });
+
+
     }
 
     function addToCart(name, price) {
@@ -93,15 +119,35 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             cart.push({ name, price, quantity: 1 });
         }
+        var amount = document.getElementById(name + "span");
+        amount.innerText = `${(parseInt(amount.innerText) + 1)}`;
 
         updateCartCount();
     }
+
+    function removefromCart(name) {
+        console.log("Adding to cart:", name);
+        const existingItem = cart.find(item => item.name === name);
+        if (existingItem) {
+            if (existingItem.quantity > 0) {
+                existingItem.quantity -= 1;
+                var amount = document.getElementById(name + "span");
+                amount.innerText = `${(parseInt(amount.innerText) - 1)}`;
+            }
+            if (existingItem.quantity == 0) {
+                cart.pop(existingItem);
+            }
+        }
+
+        updateCartCount();
+    }
+
 
     function updateCartCount() {
         console.log("Updating cart count");
         var cartView = document.getElementById("view-cart");
         var quantitySum = 0;
-        for (var i = 0 ; i<cart.length ; i++) {
+        for (var i = 0; i < cart.length; i++) {
             quantitySum += cart[i]['quantity'];
         }
         cartView.innerHTML = `View Cart (${quantitySum})`;
@@ -121,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cart.length === 0) {
             cartContainer.innerHTML = "<p>Your cart is empty.</p>";
         } else {
+            var totalAmount = 0;
             cart.forEach(item => {
                 const cartItem = document.createElement("div");
                 cartItem.className = "cart-item";
@@ -128,7 +175,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     ${item.name} - $${item.price} x ${item.quantity}
                 `;
                 cartContainer.appendChild(cartItem);
+
+                totalAmount += (item.price * item.quantity);
             });
+            const totalAmountCart = document.createElement("div");
+            totalAmountCart.innerHTML = `
+            Total: $${totalAmount}
+            `
+            cartContainer.appendChild(totalAmountCart);
         }
 
         document.getElementById("back-button").addEventListener("click", renderHome);
